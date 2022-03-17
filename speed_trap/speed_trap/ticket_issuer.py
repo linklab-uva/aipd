@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from turtle import speed
 import rospy
@@ -11,7 +11,7 @@ import numpy as np
 
 ticket_pub = None
 issued_tickets = set()
-speed_limit = 10  # m/s
+speed_limit = 40  # mph
 ego_velocity = Vector3()
 instance_tracking_pose = dict()
 instance_tracking_time = dict()
@@ -38,7 +38,7 @@ def detected_object_callback(msg : DetectedObjectArray):
         object_velocity_x = (object.pose.x - instance_tracking_pose[object.id].x) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - instance_tracking_time[object.id]).total_seconds()
         object_velocity_y = (object.pose.y - instance_tracking_pose[object.id].y) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - instance_tracking_time[object.id]).total_seconds()
         object_velocity_z = (object.pose.z - instance_tracking_pose[object.id].z) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - instance_tracking_time[object.id]).total_seconds()
-        object_velocity = np.linalg.norm([object_velocity_x, object_velocity_y, object_velocity_z])
+        object_velocity =  int(convert_mph(np.linalg.norm([object_velocity_x, object_velocity_y, object_velocity_z])))
         if (object_velocity > speed_limit):
             issued_tickets.add(object.id)
             ticket = Ticket()
@@ -46,7 +46,10 @@ def detected_object_callback(msg : DetectedObjectArray):
             ticket.velocity = object_velocity
             ticket.violation_time = msg.header.stamp
             ticket_pub.publish(ticket)
-            print("Ticket issued at", ticket.violation_time, "to vehicle", ticket.id, "for moving at", ticket.velocity, "m/s in a", speed_limit, "m/s zone." )
+            print("Ticket issued at", datetime.fromtimestamp(int(str(msg.header.stamp.secs))), "to vehicle", ticket.id, "for moving at", int(ticket.velocity), "mph in a", speed_limit, "mph zone." )
+
+def convert_mph(speed):
+    return 2.2369 * speed
 
 def ego_velocity_callback(msg : Vector3):
     global ego_velocity

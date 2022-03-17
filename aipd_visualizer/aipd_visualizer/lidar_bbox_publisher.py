@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 from nav_msgs.msg import Odometry
@@ -14,7 +14,7 @@ tf_buffer = tf2_ros.Buffer()
 
 def lidar_bbox_visualizer():
     global marker_pub, tf_buffer
-    rospy.init_node('ego_velocity_estimator')
+    rospy.init_node('lidar_bbox_publisher')
     marker_pub = rospy.Publisher('lidar_bboxes', MarkerArray, queue_size=20)
     listener = tf2_ros.TransformListener(tf_buffer)
     ego_odom_sub = rospy.Subscriber('odom', Odometry, odom_callback)
@@ -46,6 +46,7 @@ def object_callback(msg : DetectedObjectArray):
         marker.scale = object.box_size
         marker.color.b = 1.0
         marker.color.a = 1.0
+        # marker.lifetime = rospy.Duration(0, 4e8)
         # marker.points.append(marker_pose.position)
         marker_array.markers.append(marker)
     marker_pub.publish(marker_array)
