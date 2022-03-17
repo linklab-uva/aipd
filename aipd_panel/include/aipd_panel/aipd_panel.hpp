@@ -12,7 +12,9 @@
 #include <ui_aipd_panel.h>
 
 // Other ROS dependencies
-#include <std_msgs/Bool.h>
+#include <std_msgs/Int16.h>
+#include <aipd_msgs/DetectedObjectArray.h>
+#include <aipd_msgs/Ticket.h>
 
 
 namespace aipd_panel
@@ -59,21 +61,24 @@ namespace aipd_panel
          *  Here we declare some internal slots.
          */
         private Q_SLOTS:
+        
+            void speed_limit_callback(const std_msgs::Int16::ConstPtr& msg);
 
-            void button_one();
-            void button_two();
+            void detected_objects_callback(const aipd_msgs::DetectedObjectArray::ConstPtr& msg);
+
+            void speeding_tickets_callback(const aipd_msgs::Ticket::ConstPtr& msg);
 
         /**
          *  Finally, we close up with protected member variables
          */
         protected:
             // UI pointer
-            std::shared_ptr<Ui::two_button> ui_;
+            std::shared_ptr<Ui::aipd_panel> ui_;
             // ROS declaration
             ros::NodeHandle nh_;
-            ros::Publisher button_1_pub_;
-            ros::Publisher button_2_pub_;
-            std_msgs::Bool msg_;
+            ros::Subscriber speed_limit_sub_;
+            ros::Subscriber detected_objects_sub_;
+            ros::Subscriber speeding_tickets_sub_;
     };
 } // namespace aipd_panel
 #endif

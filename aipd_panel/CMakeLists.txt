@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   pluginlib
   # Other dependecies
   std_msgs
+  aipd_msgs
 )
 
 catkin_package(

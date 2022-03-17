@@ -8,34 +8,32 @@ namespace aipd_panel
 {
     aipdPanel::aipdPanel(QWidget * parent)
     :   rviz::Panel(parent),
-        ui_(std::make_shared<Ui::two_button>())
+        ui_(std::make_shared<Ui::aipd_panel>())
     {
         // Extend the widget with all attributes and children from UI file
         ui_->setupUi(this);
 
         // Define ROS publisher
-        button_1_pub_ = nh_.advertise<std_msgs::Bool>("button_1_topic", 1);
-        button_2_pub_ = nh_.advertise<std_msgs::Bool>("button_2_topic", 1);
 
-        // Declare ROS msg_
-        msg_.data = true;
-
-        connect(ui_->pushButton_1, SIGNAL(clicked()), this, SLOT(button_one()));
-        connect(ui_->pushButton_2, SIGNAL(clicked()), this, SLOT(button_two()));
+        speed_limit_sub_ = nh_.subscribe<std_msgs::Int16>("speed_limit", 1, &aipdPanel::speed_limit_callback, this);
+        detected_objects_sub_ = nh_.subscribe<aipd_msgs::DetectedObjectArray>("detected_objects", 4, &aipdPanel::detected_objects_callback, this);
+        speeding_tickets_sub_ = nh_.subscribe<aipd_msgs::Ticket>("tickets", 5, &aipdPanel::speeding_tickets_callback, this);
     }
 
 
-    void aipdPanel::button_one()
+    void aipdPanel::speed_limit_callback(const std_msgs::Int16::ConstPtr& msg)
     {
-        ROS_INFO_STREAM("Button one pressed.");
-        button_1_pub_.publish(msg_);
+
     }
 
-
-    void aipdPanel::button_two()
+    void detected_objects_callback(const aipd_msgs::DetectedObjectArray::ConstPtr& msg)
     {
-        ROS_INFO_STREAM("Button two pressed.");
-        button_2_pub_.publish(msg_);
+
+    }
+
+    void speeding_tickets_callback(const aipd_msgs::Ticket::ConstPtr& msg)
+    {
+
     }
 
 

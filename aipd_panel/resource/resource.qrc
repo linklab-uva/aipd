@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="Prefix">
+    <file>sign.png</file>
+  </qresource>
+</RCC>

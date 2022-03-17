@@ -2,7 +2,7 @@
 
   <class type="aipd_panel::aipdPanel" base_class_type="rviz::Panel">
     <description>
-      A simple panel widget with two buttons.
+      AIPD visualization rviz panel.
     </description>
   </class>
 
