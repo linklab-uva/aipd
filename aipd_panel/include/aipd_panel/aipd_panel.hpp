@@ -13,8 +13,7 @@
 
 // Other ROS dependencies
 #include <std_msgs/Int16.h>
-// #include <aipd_msgs/DetectedObjectArray.h>
-// #include <aipd_msgs/Ticket.h>
+#include <std_msgs/String.h>
 
 
 namespace aipd_panel
@@ -64,9 +63,9 @@ namespace aipd_panel
         
             void speed_limit_callback(const std_msgs::Int16::ConstPtr& msg);
 
-            // void detected_objects_callback(const aipd_msgs::DetectedObjectArray::ConstPtr& msg);
+            void detected_objects_callback(const std_msgs::Int16::ConstPtr& msg);
 
-            // void speeding_tickets_callback(const aipd_msgs::Ticket::ConstPtr& msg);
+            void speeding_tickets_callback(const std_msgs::String::ConstPtr& msg);
 
         /**
          *  Finally, we close up with protected member variables
@@ -77,8 +76,8 @@ namespace aipd_panel
             // ROS declaration
             ros::NodeHandle nh_;
             ros::Subscriber speed_limit_sub_;
-            // ros::Subscriber detected_objects_sub_;
-            // ros::Subscriber speeding_tickets_sub_;
+            ros::Subscriber detected_objects_sub_;
+            ros::Subscriber speeding_tickets_sub_;
     };
 } // namespace aipd_panel
 #endif
