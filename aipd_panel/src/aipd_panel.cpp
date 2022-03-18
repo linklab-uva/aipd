@@ -16,8 +16,8 @@ namespace aipd_panel
         // Define ROS publisher
 
         speed_limit_sub_ = nh_.subscribe<std_msgs::Int16>("speed_limit", 1, &aipdPanel::speed_limit_callback, this);
-        detected_objects_sub_ = nh_.subscribe<aipd_msgs::DetectedObjectArray>("detected_objects", 4, &aipdPanel::detected_objects_callback, this);
-        speeding_tickets_sub_ = nh_.subscribe<aipd_msgs::Ticket>("tickets", 5, &aipdPanel::speeding_tickets_callback, this);
+        // detected_objects_sub_ = nh_.subscribe<aipd_msgs::DetectedObjectArray>("detected_objects", 4, &aipdPanel::detected_objects_callback, this);
+        // speeding_tickets_sub_ = nh_.subscribe<aipd_msgs::Ticket>("tickets", 5, &aipdPanel::speeding_tickets_callback, this);
     }
 
 
@@ -26,15 +26,15 @@ namespace aipd_panel
 
     }
 
-    void detected_objects_callback(const aipd_msgs::DetectedObjectArray::ConstPtr& msg)
-    {
+    // void detected_objects_callback(const aipd_msgs::DetectedObjectArray::ConstPtr& msg)
+    // {
 
-    }
+    // }
 
-    void speeding_tickets_callback(const aipd_msgs::Ticket::ConstPtr& msg)
-    {
+    // void speeding_tickets_callback(const aipd_msgs::Ticket::ConstPtr& msg)
+    // {
 
-    }
+    // }
 
 
     /**
