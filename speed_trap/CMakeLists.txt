@@ -20,6 +20,7 @@ find_package(rospy REQUIRED)
 find_package(aipd_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS rospy aipd_msgs geometry_msgs nav_msgs

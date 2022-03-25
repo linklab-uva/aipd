@@ -3,6 +3,8 @@
 
 #include <ros/ros.h>
 #include <rviz/panel.h>
+#include <vector>
+
 
 /** 
  *  Include header generated from ui file
@@ -63,9 +65,11 @@ namespace aipd_panel
         
             void speed_limit_callback(const std_msgs::Int16::ConstPtr& msg);
 
-            void detected_objects_callback(const std_msgs::Int16::ConstPtr& msg);
+            void num_objects_callback(const std_msgs::Int16::ConstPtr& msg);
 
-            void speeding_tickets_callback(const std_msgs::String::ConstPtr& msg);
+            void ticket_description_callback(const std_msgs::String::ConstPtr& msg);
+
+            void update_display(void);
 
         /**
          *  Finally, we close up with protected member variables
@@ -78,6 +82,14 @@ namespace aipd_panel
             ros::Subscriber speed_limit_sub_;
             ros::Subscriber detected_objects_sub_;
             ros::Subscriber speeding_tickets_sub_;
+        
+        private:
+            // Display variables
+            int num_objects;
+            int num_tickets;
+            int speed_limit;
+            std::vector<string> ticket_queue;
+            
     };
 } // namespace aipd_panel
 #endif

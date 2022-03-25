@@ -13,28 +13,41 @@ namespace aipd_panel
         // Extend the widget with all attributes and children from UI file
         ui_->setupUi(this);
 
+
         // Define ROS publisher
 
         speed_limit_sub_ = nh_.subscribe<std_msgs::Int16>("speed_limit", 1, &aipdPanel::speed_limit_callback, this);
-        // detected_objects_sub_ = nh_.subscribe<aipd_msgs::DetectedObjectArray>("detected_objects", 4, &aipdPanel::detected_objects_callback, this);
-        // speeding_tickets_sub_ = nh_.subscribe<aipd_msgs::Ticket>("tickets", 5, &aipdPanel::speeding_tickets_callback, this);
+        detected_objects_sub_ = nh_.subscribe<std_msgs::Int16>("num_objects", 4, &aipdPanel::num_objects_callback, this);
+        speeding_tickets_sub_ = nh_.subscribe<std_msgs::String>("ticket_description", 5, &aipdPanel::ticket_description_callback, this);
+
+        QTimer* update_timer = new QTimer( this );
+        connect(update_timer, SIGNAL(timeout()), this, SLOT(display_num_detections()));
+
+        num_objects = 0;
+        num_tickets = 0;
+        speed_limit = 25;
     }
 
 
     void aipdPanel::speed_limit_callback(const std_msgs::Int16::ConstPtr& msg)
     {
-
+        speed_limit = msg.data;
     }
 
-    // void detected_objects_callback(const aipd_msgs::DetectedObjectArray::ConstPtr& msg)
-    // {
+    void aipdPanel::num_objects_callback(const std_msgs::Int16::ConstPtr& msg)
+    {
+        num_objects = msg.data;
+    }
 
-    // }
+    void aipdPanel::ticket_description_callback(const std_msgs::String::ConstPtr& msg)
+    {
+        ticket_queue.push_back(msg.data);
+    }
 
-    // void speeding_tickets_callback(const aipd_msgs::Ticket::ConstPtr& msg)
-    // {
-
-    // }
+    void aipdPanel::update_display(void)
+    {
+        ui_->num_detections.setText((std::string) num_objects;)
+    }
 
 
     /**
