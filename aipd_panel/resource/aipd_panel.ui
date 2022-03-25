@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>433</width>
+    <width>486</width>
     <height>587</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>13</x>
      <y>40</y>
-     <width>321</width>
+     <width>441</width>
      <height>447</height>
     </rect>
    </property>
@@ -72,7 +72,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListView" name="ticket_log"/>
+       <widget class="QListWidget" name="ticket_log"/>
       </item>
      </layout>
     </item>
@@ -81,20 +81,20 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>251</x>
+     <x>338</x>
      <y>92</y>
      <width>81</width>
      <height>101</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/sign.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/images/sign.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_5">
+  <widget class="QLabel" name="speed_limit">
    <property name="geometry">
     <rect>
-     <x>272</x>
+     <x>359</x>
      <y>144</y>
      <width>61</width>
      <height>31</height>
@@ -104,9 +104,6 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:22pt; font-weight:600;&quot;&gt;25&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <zorder>label</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>label_5</zorder>
  </widget>
  <resources>
   <include location="resource.qrc"/>

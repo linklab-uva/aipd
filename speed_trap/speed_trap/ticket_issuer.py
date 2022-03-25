@@ -6,7 +6,6 @@ import rospy
 # from lgsvl_msgs.msg import DetectedRadarObjectArray
 from aipd_msgs.msg import DetectedObjectArray
 from aipd_msgs.msg import Ticket
-from geometry_msgs.msg import Vector3
 from datetime import datetime
 import numpy as np
 from std_msgs.msg import Int16, String
@@ -15,7 +14,7 @@ ticket_pub = None
 num_objects_pub = None
 ticket_description_pub = None
 issued_tickets = set()
-speed_limit = 40  # mph
+speed_limit = 5  # mph
 ego_velocity = inf
 instance_tracking_pose = dict()
 instance_tracking_time = dict()
@@ -24,7 +23,7 @@ def ticket_issuer():
     global ticket_pub, num_objects_pub, ticket_description_pub
     rospy.init_node('ticket_issuer')
     ticket_pub  = rospy.Publisher("tickets", Ticket, queue_size=20)
-    ego_velocity_sub = rospy.Subscriber("ego_velocity", Vector3, ego_velocity_callback)
+    ego_velocity_sub = rospy.Subscriber("ego_velocity", Int16, ego_velocity_callback)
     objects  = rospy.Subscriber("detected_objects", DetectedObjectArray, detected_object_callback)
     # Publishers for rviz panel
     num_objects_pub = rospy.Publisher("num_objects", Int16, queue_size=20)
@@ -57,16 +56,16 @@ def detected_object_callback(msg : DetectedObjectArray):
             ticket.violation_time = msg.header.stamp
             ticket_pub.publish(ticket)
             ticket_description = String()
-            ticket_description.data = "Ticket issued at", datetime.fromtimestamp(int(str(msg.header.stamp.secs))), "to vehicle", ticket.id, "for moving at", int(ticket.velocity), "mph in a", speed_limit, "mph zone."
+            ticket_description.data = "Ticket issued to vehicle " + str(ticket.id) + " for travelling " + str(int(ticket.velocity)) + " mph in a " + str(speed_limit) + " mph zone"
             ticket_description_pub.publish(ticket_description)
             print(ticket_description.data)
 
 def convert_mph(speed):
     return 2.2369 * speed
 
-def ego_velocity_callback(msg : Vector3):
+def ego_velocity_callback(msg : Int16):
     global ego_velocity
-    ego_velocity = int(convert_mph(np.linalg.norm([msg.x, msg.y, msg.z])))
+    ego_velocity = msg.data
 
 if __name__ == '__main__':
     ticket_issuer()

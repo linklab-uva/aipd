@@ -17,12 +17,17 @@ namespace aipd_panel
         // Define ROS publisher
 
         speed_limit_sub_ = nh_.subscribe<std_msgs::Int16>("speed_limit", 1, &aipdPanel::speed_limit_callback, this);
-        detected_objects_sub_ = nh_.subscribe<std_msgs::Int16>("num_objects", 4, &aipdPanel::num_objects_callback, this);
-        speeding_tickets_sub_ = nh_.subscribe<std_msgs::String>("ticket_description", 5, &aipdPanel::ticket_description_callback, this);
+        detected_objects_sub_ = nh_.subscribe<std_msgs::Int16>("num_objects", 2, &aipdPanel::num_objects_callback, this);
+        speeding_tickets_sub_ = nh_.subscribe<std_msgs::String>("ticket_description", 2, &aipdPanel::ticket_description_callback, this);
+        ego_velocity_sub_ = nh_.subscribe<std_msgs::Int16>("ego_velocity", 2, &aipdPanel::ego_speed_callback, this);
 
-        QTimer* update_timer = new QTimer( this );
-        connect(update_timer, SIGNAL(timeout()), this, SLOT(display_num_detections()));
+        connect(this, SIGNAL(display_changed()), this, SLOT(update_display()));
+        
+        QPixmap image("aipd_panel/resource/images/sign.png");
 
+        ui_->label->setPixmap(image);
+ 
+        ego_speed = 0;
         num_objects = 0;
         num_tickets = 0;
         speed_limit = 25;
@@ -31,24 +36,51 @@ namespace aipd_panel
 
     void aipdPanel::speed_limit_callback(const std_msgs::Int16::ConstPtr& msg)
     {
-        speed_limit = msg.data;
+        speed_limit = msg->data;
+        Q_EMIT display_changed();
     }
 
     void aipdPanel::num_objects_callback(const std_msgs::Int16::ConstPtr& msg)
     {
-        num_objects = msg.data;
+        num_objects = msg->data;
+        Q_EMIT display_changed();
     }
 
     void aipdPanel::ticket_description_callback(const std_msgs::String::ConstPtr& msg)
     {
-        ticket_queue.push_back(msg.data);
+        ticket_queue.push_back(msg->data);
+        num_tickets++;
+        Q_EMIT display_changed();
+    }
+
+    void aipdPanel::ego_speed_callback(const std_msgs::Int16::ConstPtr& msg)
+    {
+        ego_speed = msg->data;
     }
 
     void aipdPanel::update_display(void)
     {
-        ui_->num_detections.setText((std::string) num_objects;)
+        ui_->num_detections->setText(format_string("Number of Detections: " + std::to_string(num_objects)));
+        ui_->speed_limit->setText(format_string(std::to_string(speed_limit)));
+        ui_->ego_speed->setText(format_string("Ego Speed: " + std::to_string(ego_speed) + " mph"));
+        ui_->num_tickets->setText(format_string("Ticket Issued: " + std::to_string(num_tickets)));
+        for (std::string ticket : ticket_queue)
+        {
+            ui_->ticket_log->addItem((QString) ticket.c_str());
+        }
+        ticket_queue.clear();
     }
 
+    QString aipdPanel::format_string(std::string text)
+    {
+        std::string formatted_text;
+        if (isdigit(text[0])) {
+            formatted_text = "<html><head/><body><p><span style=\" font-size:22pt; font-weight:600;\">"+ text + "</span></p></body></html>";
+        } else {
+            formatted_text = "<html><head/><body><p><span style=\" font-size:14pt;\">"+ text + "</span></p></body></html>";
+        }
+        return (QString) formatted_text.c_str();
+    }
 
     /**
      *  Save all configuration data from this panel to the given
