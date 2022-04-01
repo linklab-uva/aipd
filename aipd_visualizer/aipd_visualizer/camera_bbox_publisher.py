@@ -13,7 +13,7 @@ from pyquaternion import Quaternion
 
 image_pub = None
 current_boxes = DetectedObjectArray()
-cam_front_calibration = np.eye(3)
+cam_front_calibration = None
 
 def camera_bbox_visualizer():
     global image_pub
@@ -27,8 +27,11 @@ def camera_bbox_visualizer():
 # On callback, draw bounding box on image
 def camera_callback(msg : Image):
     global image_pub
+    global cam_front_calibration
+    if cam_front_calibration is None:
+        return
     image_arr = ros_numpy.numpify(msg)
-    image = PIL.Image(image_arr)
+    image = PIL.Image.fromarray(image_arr)
     _, ax = plt.subplots(1, 1, figsize=(9,16))
     ax.imshow(image)
     for box in current_boxes.objects:
@@ -42,7 +45,8 @@ def camera_callback(msg : Image):
         
     ax.set_xlim(0, msg.width)
     ax.set_ylim(msg.height, 0)
-    plt.savefig('/home/chros/test.jpg')
+    print("Picture saved")
+    plt.savefig('/home/chros/test.png')
         
 def object_callback(msg : DetectedObjectArray):
     global current_boxes
