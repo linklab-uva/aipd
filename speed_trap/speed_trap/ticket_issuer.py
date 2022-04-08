@@ -18,6 +18,7 @@ speed_limit = 5  # mph
 ego_velocity = inf
 instance_tracking_pose = dict()
 instance_tracking_time = dict()
+num_objects = 0
 
 def ticket_issuer():
     global ticket_pub, num_objects_pub, ticket_description_pub
@@ -32,12 +33,11 @@ def ticket_issuer():
     
 
 def detected_object_callback(msg : DetectedObjectArray):
-    global ticket_pub, issued_tickets, speed_limit, instance_tracking_pose, instance_tracking_time
+    global ticket_pub, issued_tickets, speed_limit, instance_tracking_pose, instance_tracking_time, num_objects
     objects = msg.objects
-    num_objects = Int16()
-    num_objects.data = len(msg.objects)
-    num_objects_pub.publish(num_objects)
     for object in objects:
+        if object.is_vehicle and object.new_detection:
+            num_objects += 1
         if not object.is_vehicle or object.id in issued_tickets:
             continue
         if object.id not in instance_tracking_pose:
@@ -59,6 +59,9 @@ def detected_object_callback(msg : DetectedObjectArray):
             ticket_description.data = "Ticket issued to vehicle " + str(ticket.id) + " for travelling " + str(int(ticket.velocity)) + " mph in a " + str(speed_limit) + " mph zone"
             ticket_description_pub.publish(ticket_description)
             print(ticket_description.data)
+    num_objects_msg = Int16()
+    num_objects_msg.data = num_objects
+    num_objects_pub.publish(num_objects_msg)
 
 def convert_mph(speed):
     return 2.2369 * speed
