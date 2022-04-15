@@ -17,6 +17,7 @@
 // Other ROS dependencies
 #include <std_msgs/Int16.h>
 #include <std_msgs/String.h>
+#include <ros/package.h>
 
 
 namespace aipd_panel
