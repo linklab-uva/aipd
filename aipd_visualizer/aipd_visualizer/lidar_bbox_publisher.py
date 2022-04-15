@@ -7,10 +7,12 @@ from datetime import datetime
 from aipd_msgs.msg import DetectedObjectArray
 from geometry_msgs.msg import Pose, Point
 import tf2_ros, tf2_geometry_msgs
+from aipd_msgs.msg import Ticket
 
 marker_pub = None
 ego_odom = Odometry()
 tf_buffer = tf2_ros.Buffer()
+tickets = set()
 
 def lidar_bbox_visualizer():
     global marker_pub, tf_buffer
@@ -19,6 +21,7 @@ def lidar_bbox_visualizer():
     listener = tf2_ros.TransformListener(tf_buffer)
     ego_odom_sub = rospy.Subscriber('odom', Odometry, odom_callback)
     annotation_sub = rospy.Subscriber('detected_objects', DetectedObjectArray, object_callback)
+    ticket_sub = rospy.Subscriber('tickets', Ticket, ticket_callback)
     rospy.spin()
     
 
@@ -27,7 +30,7 @@ def odom_callback(msg : Odometry):
     ego_odom = msg
 
 def object_callback(msg : DetectedObjectArray):
-    global ego_odom
+    global ego_odom, tickets
     marker_array : MarkerArray = MarkerArray()
     for object in msg.objects:
         if not object.is_vehicle:
@@ -44,10 +47,16 @@ def object_callback(msg : DetectedObjectArray):
         marker.id = object.id
         marker.type = Marker.CUBE
         marker.scale = object.box_size
-        marker.color.b = 1.0
-        marker.color.a = 1.0
-        # marker.lifetime = rospy.Duration(0, 4e8)
-        # marker.points.append(marker_pose.position)
+        if object.id in tickets:
+            marker.color.a = 0.7
+            marker.color.r = 1.0
+            marker.color.g = 0.0
+            marker.color.b = 0.0
+        else:
+            marker.color.a = 0.7
+            marker.color.r = 0.0
+            marker.color.g = 1.0
+            marker.color.b = 0.0
         marker_array.markers.append(marker)
     marker_pub.publish(marker_array)
 
@@ -68,6 +77,10 @@ def transform_coordinates(pose : Pose, stamp):
 
     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         raise
+
+def ticket_callback(ticket : Ticket):
+    global tickets
+    tickets.add(ticket.id)
 
 if __name__ == '__main__':
     lidar_bbox_visualizer()

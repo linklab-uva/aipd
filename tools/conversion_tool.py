@@ -1,7 +1,10 @@
+#!/bin/env python
+
 from nuscenes.nuscenes import NuScenes
 import os
+import numpy as np
 
-nusc = NuScenes(version='v1.0-mini', dataroot='/home/chros/nuscenes-mini', verbose = True)
+nusc = NuScenes(version='v1.0-trainval', dataroot='/home/chros/nuscenes-data', verbose = True)
 
 scene_no = input("Enter scene number: " )
 scene = None
@@ -66,6 +69,8 @@ with Writer('/home/chros/rosbags/{0}/{0}-annotations.bag'.format(scene_no)) as w
         header = Header(time, frame_id)   
         for annotation_token in sample['anns']:
             sample_annotation = nusc.get('sample_annotation', annotation_token)
+            if int(sample_annotation['visibility_token']) < 4:
+                continue
             pose_x = sample_annotation['translation'][0]
             pose_y = sample_annotation['translation'][1]
             pose_z = sample_annotation['translation'][2]

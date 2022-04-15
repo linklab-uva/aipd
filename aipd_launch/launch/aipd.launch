@@ -1,0 +1,10 @@
+<launch>
+
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aipd_visualizer)/rviz/aipd_viz.rviz"/>
+
+    <node type="ticket_issuer.py" name="ticket_issuer" pkg="speed_trap"/>
+
+    <node type="ego_velocity_estimator.py" name="ego_velocity_estimator" pkg="speed_trap"/>
+
+    <node type="lidar_bbox_publisher.py" name="lidar_bbox_publisher" pkg="aipd_visualizer"/>
+</launch>

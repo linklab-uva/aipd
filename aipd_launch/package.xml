@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>aipd_panel</name>
+  <name>aipd_launch</name>
   <version>0.0.0</version>
-  <description>The aipd_panel package</description>
+  <description>The aipd_launch package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/aipd_panel</url> -->
+  <!-- <url type="website">http://wiki.ros.org/launch</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -49,28 +49,20 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>pluginlib</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
+  <build_depend>aipd_visualizer</build_depend>
   <build_depend>rviz</build_depend>
-  <build_depend>std_msgs</build_depend>
-
-  <build_export_depend>pluginlib</build_export_depend>
-  <build_export_depend>roscpp</build_export_depend>
-  <build_export_depend>rospy</build_export_depend>
+  <build_depend>speed_trap</build_depend>
+  <build_export_depend>aipd_visualizer</build_export_depend>
   <build_export_depend>rviz</build_export_depend>
-  <build_export_depend>std_msgs</build_export_depend>
-
-  <exec_depend>pluginlib</exec_depend>
-  <exec_depend>roscpp</exec_depend>
-  <exec_depend>rospy</exec_depend>
+  <build_export_depend>speed_trap</build_export_depend>
+  <exec_depend>aipd_visualizer</exec_depend>
   <exec_depend>rviz</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>speed_trap</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-    <rviz plugin="${prefix}/rviz_plugin.xml"/>
+
   </export>
 </package>

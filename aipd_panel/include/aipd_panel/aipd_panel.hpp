@@ -3,6 +3,9 @@
 
 #include <ros/ros.h>
 #include <rviz/panel.h>
+#include <vector>
+#include <string>
+#include <std_srvs/Trigger.h>
 
 /** 
  *  Include header generated from ui file
@@ -12,7 +15,9 @@
 #include <ui_aipd_panel.h>
 
 // Other ROS dependencies
-#include <std_msgs/Bool.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/String.h>
+#include <ros/package.h>
 
 
 namespace aipd_panel
@@ -43,6 +48,14 @@ namespace aipd_panel
              */
             aipdPanel(QWidget * parent = 0);
 
+            void speed_limit_callback(const std_msgs::Int16::ConstPtr& msg);
+
+            void num_objects_callback(const std_msgs::Int16::ConstPtr& msg);
+
+            void ticket_description_callback(const std_msgs::String::ConstPtr& msg);
+
+            void ego_speed_callback(const std_msgs::Int16::ConstPtr& msg);
+
             /**
              *  Now we declare overrides of rviz::Panel functions for saving and
              *  loading data from the config file.  Here the data is the topic name.
@@ -50,30 +63,41 @@ namespace aipd_panel
             virtual void save(rviz::Config config) const;
             virtual void load(const rviz::Config & config);
 
-        /**
-         *  Next come a couple of public Qt Slots.
-         */
-        public Q_SLOTS:
 
         /**
          *  Here we declare some internal slots.
          */
         private Q_SLOTS:
 
-            void button_one();
-            void button_two();
+            void update_display(void);
+
+        Q_SIGNALS:
+
+            void display_changed();
 
         /**
          *  Finally, we close up with protected member variables
          */
         protected:
             // UI pointer
-            std::shared_ptr<Ui::two_button> ui_;
+            std::shared_ptr<Ui::aipd_panel> ui_;
             // ROS declaration
             ros::NodeHandle nh_;
-            ros::Publisher button_1_pub_;
-            ros::Publisher button_2_pub_;
-            std_msgs::Bool msg_;
+            ros::Subscriber speed_limit_sub_;
+            ros::Subscriber detected_objects_sub_;
+            ros::Subscriber speeding_tickets_sub_;
+            ros::Subscriber ego_velocity_sub_;
+        
+        private:
+            // Display variables
+            int num_objects;
+            int num_tickets;
+            int speed_limit;
+            int ego_speed;
+            std::vector<std::string> ticket_queue;
+            // Helper function to format Qt strings
+            QString format_string(std::string text);
+            
     };
 } // namespace aipd_panel
 #endif
