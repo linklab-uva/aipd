@@ -8,7 +8,6 @@ import rosbag
 from aipd_msgs.msg import DetectedObject, DetectedObjectArray
 from std_msgs.msg import Header
 from geometry_msgs.msg import Vector3, Quaternion
-import rospy
 
 nusc = NuScenes(version='v1.0-trainval', dataroot='/media/chros/G-DRIVE/nuscenes-data', verbose = True)
 
@@ -63,7 +62,12 @@ def write_annotations(scene_no):
                     is_vehicle = True
                 else:
                     is_vehicle = False
-                detected_object = DetectedObject(pose, token, id, new_detection, is_vehicle, size, orientation)
+                is_moving = True
+                for attribute_token in sample_annotation['attribute_tokens']:
+                    attribute = nusc.get('attribute', attribute_token)
+                    if attribute['name'] == 'vehicle.parked':
+                        is_moving = False
+                detected_object = DetectedObject(pose, token, id, new_detection, is_vehicle, is_moving, size, orientation)
                 detected_objects.append(detected_object)
             message = DetectedObjectArray(header, detected_objects)
             writer.write('detected_objects', message, header.stamp)
