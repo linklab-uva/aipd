@@ -41,7 +41,7 @@ def camera_callback(msg : Image):
     _, ax = plt.subplots(1, 1, figsize=(9,16))
     ax.imshow(image)
     for box in current_boxes.objects:
-        if not box.is_vehicle:
+        if not box.is_vehicle or box.is_moving:
             continue
         object_pose = Pose()
         object_pose.position = box.pose

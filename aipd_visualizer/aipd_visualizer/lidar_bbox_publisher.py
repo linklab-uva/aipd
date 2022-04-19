@@ -33,7 +33,7 @@ def object_callback(msg : DetectedObjectArray):
     global ego_odom, tickets
     marker_array : MarkerArray = MarkerArray()
     for object in msg.objects:
-        if not object.is_vehicle:
+        if not object.is_vehicle or not object.is_moving:
             continue
         marker : Marker = Marker()
         marker.header = msg.header
