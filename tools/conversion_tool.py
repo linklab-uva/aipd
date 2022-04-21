@@ -1,17 +1,14 @@
 #!/bin/env python
 
-from nbformat import write
+from turtle import speed
 from nuscenes.nuscenes import NuScenes
 import os
-import numpy as np
 import rosbag
 from aipd_msgs.msg import DetectedObject, DetectedObjectArray
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Int16
 from geometry_msgs.msg import Vector3, Quaternion
-
-nusc = NuScenes(version='v1.0-trainval', dataroot='/media/chros/G-DRIVE/nuscenes-data', verbose = True)
-
-
+import cv2
+from cv_bridge import CvBridge
 
 def write_annotations(scene_no):
     if not os.path.exists("/media/chros/G-DRIVE/aipd_bags/{0}".format(scene_no)):
@@ -21,6 +18,28 @@ def write_annotations(scene_no):
         sample = nusc.get('sample', scene['first_sample_token'])
         id_lookup_table = dict()
         id_counter = 0
+        log = nusc.get('log', scene['log_token'])
+        map_name = log['location']
+        if map_name == 'singapore-onenorth':
+            map_filename = '/media/chros/G-DRIVE/nuscenes-data/maps/53992ee3023e5494b90c316c183be829.jpg'
+        elif map_name == 'boston-seaport':
+            map_filename = '/media/chros/G-DRIVE/nuscenes-data/maps/36092f0b03a857c6a3403e25b4b7aab3.jpg'
+        elif map_name == 'singapore-queenstown':
+            map_filename = '/media/chros/G-DRIVE/nuscenes-data/maps/93406b464a165eaba6d9de76ca09f5da.jpg'
+        else:
+            map_filename = '/media/chros/G-DRIVE/nuscenes-data/maps/37819e65e09e5547b8a3ceaefba56bb2.jpg'
+        map_image = cv2.imread(map_filename, cv2.IMREAD_UNCHANGED)
+        bridge = CvBridge()
+        map_msg = bridge.cv2_to_imgmsg(map_image, encoding="passthrough")
+        timestamp = str(sample['timestamp'])
+        secs = int(timestamp[:10])
+        nsecs = int(timestamp[10:] + '000')
+        header = Header()
+        header.stamp.secs = secs
+        header.stamp.nsecs = nsecs
+        writer.write('map_image', map_msg, header.stamp)
+        speed_limit_msg = Int16(25)
+        writer.write('speed_limit', speed_limit_msg, header.stamp)
         while sample['next'] != '':
             detected_objects = []
             timestamp = str(sample['timestamp'])
@@ -44,7 +63,7 @@ def write_annotations(scene_no):
                 height = sample_annotation['size'][2]
                 size = Vector3(length, width, height)
                 w = sample_annotation['rotation'][0]
-                x =sample_annotation['rotation'][1]
+                x = sample_annotation['rotation'][1]
                 y = sample_annotation['rotation'][2]
                 z = sample_annotation['rotation'][3]
                 orientation = Quaternion(x, y, z, w)
@@ -73,6 +92,8 @@ def write_annotations(scene_no):
             writer.write('detected_objects', message, header.stamp)
             sample = nusc.get('sample', sample['next'])
 
+
+nusc = NuScenes(version='v1.0-trainval', dataroot='/media/chros/G-DRIVE/nuscenes-data', verbose = True)
 scene_no = input("Enter scene number (q to quit): " )
 while scene_no != 'q':
     scene = None
