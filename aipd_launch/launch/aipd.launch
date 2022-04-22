@@ -7,4 +7,16 @@
     <node type="ego_velocity_estimator.py" name="ego_velocity_estimator" pkg="speed_trap"/>
 
     <node type="lidar_bbox_publisher.py" name="lidar_bbox_publisher" pkg="aipd_visualizer"/>
+
+    <node type="camera_bbox_publisher.py" name="cam_front_publisher" pkg="aipd_visualizer" args="cam_front"/>
+
+    <node type="camera_bbox_publisher.py" name="cam_front_left_publisher" pkg="aipd_visualizer" args="cam_front_left"/>
+
+    <node type="camera_bbox_publisher.py" name="cam_front_right_publisher" pkg="aipd_visualizer" args="cam_front_right"/>
+
+    <node type="camera_bbox_publisher.py" name="cam_back_publisher" pkg="aipd_visualizer" args="cam_back"/>
+
+    <node type="camera_bbox_publisher.py" name="cam_back_left_publisher" pkg="aipd_visualizer" args="cam_back_left"/>
+
+    <node type="camera_bbox_publisher.py" name="cam_back_right_publisher" pkg="aipd_visualizer" args="cam_back_right"/>
 </launch>

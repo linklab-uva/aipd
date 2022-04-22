@@ -4,78 +4,80 @@ import rospy
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import Pose
 from aipd_msgs.msg import DetectedObjectArray, Ticket
-import ros_numpy
-import PIL.Image
-import matplotlib.pyplot as plt
 import numpy as np
-from typing import Tuple
 from nuscenes.utils.data_classes import Box
 from pyquaternion import Quaternion
 import tf2_ros, tf2_geometry_msgs
+from cv_bridge import CvBridge
+from nuscenes.utils.data_classes import Box
+from nuscenes.utils.geometry_utils import box_in_image, BoxVisibility
+import cv2
+import sys
 
 image_pub = None
 current_boxes = DetectedObjectArray()
-cam_front_calibration = None
+cam_calibration = None
 tf_buffer = tf2_ros.Buffer()
-i = 0
 tickets = set()
+bridge = None
+topic = ""
+no_boxes = True
 
-def camera_bbox_visualizer():
-    global image_pub, tf_buffer
+def camera_bbox_visualizer(topic_name):
+    global image_pub, tf_buffer, bridge, topic
+    topic = topic_name
     rospy.init_node('camera_bbox_publisher', anonymous=True)
     listener = tf2_ros.TransformListener(tf_buffer)
-    image_pub = rospy.Publisher('cam_front/boxes', Image, queue_size=20)
-    raw_image_sub = rospy.Subscriber('cam_front/raw', Image, camera_callback)
-    image_calibration_sub = rospy.Subscriber('cam_front/camera_info', CameraInfo, calibration_callback)
+    image_pub = rospy.Publisher('{0}/boxes'.format(topic), Image, queue_size=20)
+    raw_image_sub = rospy.Subscriber('{0}/raw'.format(topic), Image, camera_callback)
+    image_calibration_sub = rospy.Subscriber('{0}/camera_info'.format(topic), CameraInfo, calibration_callback)
     annotation_sub = rospy.Subscriber('detected_objects', DetectedObjectArray, object_callback)
     ticket_sub = rospy.Subscriber('tickets', Ticket, ticket_callback)
+    bridge = CvBridge()
     rospy.spin()
     
 # On callback, draw bounding box on image
 def camera_callback(msg : Image):
-    global image_pub, cam_front_calibration, i
-    if cam_front_calibration is None:
+    global image_pub, cam_calibration, bridge, no_boxes
+    if cam_calibration is None or no_boxes:
+        image_pub.publish(msg)
         return
-    image_arr = ros_numpy.numpify(msg)
-    image = PIL.Image.fromarray(image_arr)
-    _, ax = plt.subplots(1, 1, figsize=(9,16))
-    ax.imshow(image)
-    for box in current_boxes.objects:
-        if not box.is_vehicle or box.is_moving:
+    cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+    for object in current_boxes.objects:
+        if not object.is_vehicle or not object.is_moving:
             continue
         object_pose = Pose()
-        object_pose.position = box.pose
-        object_pose.orientation = box.box_orientation
+        object_pose.position = object.pose
+        object_pose.orientation = object.box_orientation
         transformed_pose = transform_coordinates(object_pose, msg.header.stamp)
-        if box.id in tickets:
-            c = np.array((255, 0, 0)) / 255.0
+        if object.id in tickets:
+            c = (((255, 0, 0),) * 3)
         else:
-            c = np.array((0, 255, 0)) / 255.0
+            c = (((0, 255, 0),) * 3)
+        print(c)
         nuscenes_box = Box(
             [transformed_pose.position.x, transformed_pose.position.y, transformed_pose.position.z],
-            [box.box_size.y, box.box_size.x, box.box_size.z],
+            [object.box_size.y, object.box_size.x, object.box_size.z],
             Quaternion(transformed_pose.orientation.w, transformed_pose.orientation.x, transformed_pose.orientation.y, transformed_pose.orientation.z),
         )
-        nuscenes_box.render(ax, view=cam_front_calibration, normalize=True, colors=(c, c, c))
-        
-    ax.set_xlim(0, msg.width)
-    ax.set_ylim(msg.height, 0)
-    ax.axis('off')
-    ax.set_aspect('equal')
-    print("Picture saved")
-    plt.savefig('/home/chros/test{0}.png'.format(i), bbox_inches='tight', pad_inches=0, dpi=200)
-    i += 1
+        if not box_in_image(nuscenes_box, cam_calibration, (msg.width, msg.height), vis_level=BoxVisibility.ANY):
+            continue
+        nuscenes_box.render_cv2(cv_image, view=cam_calibration, normalize=True, colors=c)
+    no_boxes = True
+    image_pub.publish(bridge.cv2_to_imgmsg(cv_image, encoding='passthrough'))
+
         
 def object_callback(msg : DetectedObjectArray):
-    global current_boxes
+    global current_boxes, no_boxes
+    no_boxes = False
     current_boxes = msg
 
 def calibration_callback(msg : CameraInfo):
-    global cam_front_calibration
-    cam_front_calibration = np.reshape(msg.K, (3,3))
+    global cam_calibration
+    cam_calibration = np.reshape(msg.K, (3,3))
 
 def transform_coordinates(pose : Pose, stamp):
-    global tf_buffer
+    global tf_buffer, topic 
 
     pose_stamped = tf2_geometry_msgs.PoseStamped()
     pose_stamped.pose = pose
@@ -84,7 +86,7 @@ def transform_coordinates(pose : Pose, stamp):
 
     try:
         # ** It is important to wait for the listener to start listening. Hence the rospy.Duration(1)
-        output_pose_stamped = tf_buffer.transform(pose_stamped, "cam_front", rospy.Duration(1))
+        output_pose_stamped = tf_buffer.transform(pose_stamped, topic, rospy.Duration(1))
         return output_pose_stamped.pose
 
     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
@@ -95,4 +97,8 @@ def ticket_callback(ticket : Ticket):
     tickets.add(ticket.id)
 
 if __name__ == '__main__':
-    camera_bbox_visualizer()
+    argv = rospy.myargv(argv=sys.argv)
+    if len(argv) != 2:
+        print("Usage: rosrun aipd_visualizer camera_bbox_publisher.py [topic_name]")
+        exit(1)
+    camera_bbox_visualizer(argv[1])
