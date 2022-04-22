@@ -57,6 +57,7 @@ def object_callback(msg : DetectedObjectArray):
             marker.color.r = 0.0
             marker.color.g = 1.0
             marker.color.b = 0.0
+        marker.lifetime = rospy.Duration(0, 5e8)
         marker_array.markers.append(marker)
     marker_pub.publish(marker_array)
 
