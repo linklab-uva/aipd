@@ -39,7 +39,7 @@ def camera_bbox_visualizer(topic_name):
 # On callback, draw bounding box on image
 def camera_callback(msg : Image):
     global image_pub, cam_calibration, bridge, no_boxes
-    if cam_calibration is None or no_boxes:
+    if cam_calibration is None:
         image_pub.publish(msg)
         return
     cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
