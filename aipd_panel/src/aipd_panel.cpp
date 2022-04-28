@@ -23,10 +23,14 @@ namespace aipd_panel
 
         connect(this, SIGNAL(display_changed()), this, SLOT(update_display()));
         
-        std::string package_path = ros::package::getPath("aipd_panel") + "/resource/images/sign.png";
-        QPixmap image(QString::fromStdString(package_path));
+        std::string sign_path = ros::package::getPath("aipd_panel") + "/resource/images/sign.png";
+        std::string logo_path = ros::package::getPath("aipd_panel") + "/resource/images/aipd_logo.png";
+        
+        QPixmap sign_image(QString::fromStdString(sign_path));
+        QPixmap logo_image(QString::fromStdString(logo_path));
 
-        ui_->label->setPixmap(image);
+        ui_->sign->setPixmap(sign_image);
+        ui_->logo->setPixmap(logo_image);
  
         ego_speed = 0;
         num_objects = 0;
