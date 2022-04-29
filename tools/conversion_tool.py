@@ -38,8 +38,6 @@ def write_annotations(scene_no):
         header.stamp.secs = secs
         header.stamp.nsecs = nsecs
         writer.write('map_image', map_msg, header.stamp)
-        speed_limit_msg = Int16(25)
-        writer.write('speed_limit', speed_limit_msg, header.stamp)
         while sample['next'] != '':
             detected_objects = []
             timestamp = str(sample['timestamp'])

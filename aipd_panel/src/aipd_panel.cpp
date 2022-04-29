@@ -16,7 +16,6 @@ namespace aipd_panel
 
         // Define ROS publisher
 
-        speed_limit_sub_ = nh_.subscribe<std_msgs::Int16>("speed_limit", 1, &aipdPanel::speed_limit_callback, this);
         detected_objects_sub_ = nh_.subscribe<std_msgs::Int16>("num_objects", 2, &aipdPanel::num_objects_callback, this);
         speeding_tickets_sub_ = nh_.subscribe<std_msgs::String>("ticket_description", 2, &aipdPanel::ticket_description_callback, this);
         ego_velocity_sub_ = nh_.subscribe<std_msgs::Int16>("ego_velocity", 2, &aipdPanel::ego_speed_callback, this);
@@ -31,6 +30,9 @@ namespace aipd_panel
 
         ui_->sign->setPixmap(sign_image);
         ui_->logo->setPixmap(logo_image);
+
+        ui_->sign->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+        ui_->speed_limit->raise();
  
         ego_speed = 0;
         num_objects = 0;
@@ -38,12 +40,6 @@ namespace aipd_panel
         speed_limit = 25;
     }
 
-
-    void aipdPanel::speed_limit_callback(const std_msgs::Int16::ConstPtr& msg)
-    {
-        speed_limit = msg->data;
-        Q_EMIT display_changed();
-    }
 
     void aipdPanel::num_objects_callback(const std_msgs::Int16::ConstPtr& msg)
     {
@@ -66,7 +62,6 @@ namespace aipd_panel
     void aipdPanel::update_display(void)
     {
         ui_->num_detections->setText(format_string("Number of Detections: " + std::to_string(num_objects)));
-        ui_->speed_limit->setText(format_string(std::to_string(speed_limit)));
         ui_->ego_speed->setText(format_string("Ego Speed: " + std::to_string(ego_speed) + " mph"));
         ui_->num_tickets->setText(format_string("Ticket Issued: " + std::to_string(num_tickets)));
         for (std::string ticket : ticket_queue)
