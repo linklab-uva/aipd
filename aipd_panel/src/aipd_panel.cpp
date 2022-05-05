@@ -67,6 +67,7 @@ namespace aipd_panel
         ui_->num_detections->setText(format_string("Number of Detections: " + std::to_string(num_objects)));
         ui_->ego_speed->setText(format_string("Ego Speed: " + std::to_string(ego_speed) + " mph"));
         ui_->num_tickets->setText(format_string("Ticket Issued: " + std::to_string(num_tickets)));
+        ui_->speed_limit->setText(format_string(std::to_string(speed_limit)));
         for (std::string ticket : ticket_queue)
         {
             ui_->ticket_log->addItem((QString) ticket.c_str());
@@ -78,7 +79,7 @@ namespace aipd_panel
     {
         std::string formatted_text;
         if (isdigit(text[0])) {
-            formatted_text = "<html><head/><body><p><span style=\" font-size:22pt; font-weight:600;\">"+ text + "</span></p></body></html>";
+            formatted_text = "<html><head/><body><p align=\"center\"><br/></p><p align=\"center\"><span style=\" font-size:26pt; font-weight:600;\">" + text + "</span></p></body></html>;";
         } else {
             formatted_text = "<html><head/><body><p><span style=\" font-size:14pt;\">"+ text + "</span></p></body></html>";
         }
