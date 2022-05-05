@@ -25,7 +25,8 @@ def ticket_issuer():
     rospy.init_node('ticket_issuer')
     ticket_pub  = rospy.Publisher("tickets", Ticket, queue_size=20)
     ego_velocity_sub = rospy.Subscriber("ego_velocity", Int16, ego_velocity_callback)
-    objects  = rospy.Subscriber("detected_objects", DetectedObjectArray, detected_object_callback)
+    objects_sub  = rospy.Subscriber("detected_objects", DetectedObjectArray, detected_object_callback)
+    speed_limit_sub = rospy.Subscriber("speed_limit", Int16, speed_limit_callback)
     # Publishers for rviz panel
     num_objects_pub = rospy.Publisher("num_objects", Int16, queue_size=20)
     ticket_description_pub = rospy.Publisher("ticket_description", String, queue_size=20)
@@ -69,6 +70,10 @@ def convert_mph(speed):
 def ego_velocity_callback(msg : Int16):
     global ego_velocity
     ego_velocity = msg.data
+
+def speed_limit_callback(msg: Int16):
+    global speed_limit
+    speed_limit = msg.data
 
 if __name__ == '__main__':
     ticket_issuer()

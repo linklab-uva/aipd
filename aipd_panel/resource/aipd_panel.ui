@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
+    <width>473</width>
     <height>622</height>
    </rect>
   </property>
@@ -94,7 +94,13 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QSlider" name="horizontalSlider">
+            <widget class="QSlider" name="speed_slider">
+             <property name="minimum">
+              <number>15</number>
+             </property>
+             <property name="maximum">
+              <number>55</number>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>

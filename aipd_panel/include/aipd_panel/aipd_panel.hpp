@@ -70,6 +70,8 @@ namespace aipd_panel
         private Q_SLOTS:
 
             void update_display(void);
+            void send_speed_limit(void);
+
 
         Q_SIGNALS:
 
@@ -83,7 +85,7 @@ namespace aipd_panel
             std::shared_ptr<Ui::aipd_panel> ui_;
             // ROS declaration
             ros::NodeHandle nh_;
-            ros::Subscriber speed_limit_sub_;
+            ros::Publisher speed_limit_pub_;
             ros::Subscriber detected_objects_sub_;
             ros::Subscriber speeding_tickets_sub_;
             ros::Subscriber ego_velocity_sub_;

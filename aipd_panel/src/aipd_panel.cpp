@@ -16,10 +16,10 @@ namespace aipd_panel
 
         // Define ROS publisher
 
-        speed_limit_sub_ = nh_.subscribe<std_msgs::Int16>("speed_limit", 1, &aipdPanel::speed_limit_callback, this);
         detected_objects_sub_ = nh_.subscribe<std_msgs::Int16>("num_objects", 2, &aipdPanel::num_objects_callback, this);
         speeding_tickets_sub_ = nh_.subscribe<std_msgs::String>("ticket_description", 2, &aipdPanel::ticket_description_callback, this);
         ego_velocity_sub_ = nh_.subscribe<std_msgs::Int16>("ego_velocity", 2, &aipdPanel::ego_speed_callback, this);
+        speed_limit_pub_ = nh_.advertise<std_msgs::Int16>("speed_limit", 2);
 
         connect(this, SIGNAL(display_changed()), this, SLOT(update_display()));
         
@@ -36,13 +36,8 @@ namespace aipd_panel
         num_objects = 0;
         num_tickets = 0;
         speed_limit = 25;
-    }
 
-
-    void aipdPanel::speed_limit_callback(const std_msgs::Int16::ConstPtr& msg)
-    {
-        speed_limit = msg->data;
-        Q_EMIT display_changed();
+        connect(ui_->speed_slider, SIGNAL(sliderReleased()), this, SLOT(send_speed_limit()));
     }
 
     void aipdPanel::num_objects_callback(const std_msgs::Int16::ConstPtr& msg)
@@ -61,6 +56,7 @@ namespace aipd_panel
     void aipdPanel::ego_speed_callback(const std_msgs::Int16::ConstPtr& msg)
     {
         ego_speed = msg->data;
+        Q_EMIT display_changed();
     }
 
     void aipdPanel::update_display(void)
@@ -85,6 +81,15 @@ namespace aipd_panel
             formatted_text = "<html><head/><body><p><span style=\" font-size:14pt;\">"+ text + "</span></p></body></html>";
         }
         return (QString) formatted_text.c_str();
+    }
+
+    void aipdPanel::send_speed_limit()
+    {
+        speed_limit = ui_->speed_slider->value();
+        std_msgs::Int16 speed_limit_msg;
+        speed_limit_msg.data = speed_limit;
+        speed_limit_pub_.publish(speed_limit_msg);
+        Q_EMIT display_changed();
     }
 
     /**
