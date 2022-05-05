@@ -49,7 +49,7 @@ def detected_object_callback(msg : DetectedObjectArray):
         object_velocity_y = (object.pose.y - instance_tracking_pose[object.id].y) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - instance_tracking_time[object.id]).total_seconds()
         object_velocity_z = (object.pose.z - instance_tracking_pose[object.id].z) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - instance_tracking_time[object.id]).total_seconds()
         object_velocity =  int(convert_mph(np.linalg.norm([object_velocity_x, object_velocity_y, object_velocity_z])))
-        if (object_velocity > (speed_limit)) and (object_velocity < ego_velocity):
+        if (object_velocity > (speed_limit * 1.1 + 2)) and (object_velocity > ego_velocity):
             issued_tickets.add(object.id)
             ticket = Ticket()
             ticket.id = object.id
