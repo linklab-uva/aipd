@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from time import time
 from turtle import speed
 import rospy
 from sensor_msgs.msg import Image, CameraInfo
@@ -16,6 +17,7 @@ from nuscenes.utils.geometry_utils import box_in_image, BoxVisibility
 import cv2
 import sys
 from datetime import datetime
+import copy
 
 image_pub = None
 current_boxes = dict()
@@ -49,11 +51,15 @@ def camera_callback(msg : Image):
         image_pub.publish(msg)
         return
     cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+    time_difference = (datetime.fromtimestamp(msg.header.stamp.to_sec()) - last_annotation_time).total_seconds()
     for object in list(current_boxes.values()):
         if not object.is_vehicle or not object.is_moving or object.id not in object_velocities:
             continue
         object_pose = Pose()
-        object_pose.position = object.pose
+        object_pose.position = copy.deepcopy(object.pose)
+        object_pose.position.x += object_velocities[object.id][0] * time_difference
+        object_pose.position.y += object_velocities[object.id][1] * time_difference
+        object_pose.position.z += object_velocities[object.id][2] * time_difference
         object_pose.orientation = object.box_orientation
         transformed_pose = transform_coordinates(object_pose, msg.header.stamp)
         object_velocity =  int(convert_mph(np.linalg.norm(object_velocities[object.id])))
@@ -81,13 +87,14 @@ def object_callback(msg : DetectedObjectArray):
         for object in msg.objects:
             current_boxes[object.id] = object
         return
+    time_difference = (datetime.fromtimestamp(msg.header.stamp.to_sec()) - last_annotation_time).total_seconds()
     for object in msg.objects:
-        if object.id not in current_boxes:
+        if object.new_detection:
             current_boxes[object.id] = object
             continue
-        object_velocity_x = (object.pose.x - current_boxes[object.id].pose.x) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - last_annotation_time).total_seconds()
-        object_velocity_y = (object.pose.y - current_boxes[object.id].pose.y) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - last_annotation_time).total_seconds()
-        object_velocity_z = (object.pose.z - current_boxes[object.id].pose.z) / (datetime.fromtimestamp(int(str(msg.header.stamp.secs) + str(msg.header.stamp.nsecs)) / 1e9) - last_annotation_time).total_seconds()
+        object_velocity_x = (object.pose.x - current_boxes[object.id].pose.x) / time_difference
+        object_velocity_y = (object.pose.y - current_boxes[object.id].pose.y) / time_difference
+        object_velocity_z = (object.pose.z - current_boxes[object.id].pose.z) / time_difference
         object_velocities[object.id] = (object_velocity_x, object_velocity_y, object_velocity_z)
         current_boxes[object.id] = object
     last_annotation_time = datetime.fromtimestamp(msg.header.stamp.to_sec())
