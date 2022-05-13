@@ -40,6 +40,12 @@ namespace aipd_panel
         num_tickets = 0;
         speed_limit = 0;
 
+        ego_speed_text_ = ui_->ego_speed->text();
+        num_objects_text_ = ui_->num_detections->text();
+        num_tickets_text_ = ui_->num_tickets->text();
+        speed_limit_text_ = ui_->speed_limit->text();
+
+
         connect(ui_->speed_slider, SIGNAL(sliderReleased()), this, SLOT(send_speed_limit()));
     }
 
@@ -64,10 +70,10 @@ namespace aipd_panel
 
     void aipdPanel::update_display(void)
     {
-        ui_->num_detections->setText(format_string("Number of Detections: " + std::to_string(num_objects)));
-        ui_->ego_speed->setText(format_string("Ego Speed: " + std::to_string(ego_speed) + " mph"));
-        ui_->num_tickets->setText(format_string("Ticket Issued: " + std::to_string(num_tickets)));
-        ui_->speed_limit->setText(format_string(std::to_string(speed_limit)));
+        ui_->num_detections->setText(num_objects_text_.arg((QString) ("Number of Detections: " + std::to_string(num_objects)).c_str()));
+        ui_->ego_speed->setText(ego_speed_text_.arg((QString) ("Ego Speed: " + std::to_string(ego_speed) + " mph").c_str()));
+        ui_->num_tickets->setText(num_tickets_text_.arg((QString) ("Ticket Issued: " + std::to_string(num_tickets)).c_str()));
+        ui_->speed_limit->setText(speed_limit_text_.arg((QString) std::to_string(speed_limit).c_str()));
         for (std::string ticket : ticket_queue)
         {
             ui_->ticket_log->addItem((QString) ticket.c_str());

@@ -96,6 +96,10 @@ namespace aipd_panel
             int num_tickets;
             int speed_limit;
             int ego_speed;
+            QString num_objects_text_;
+            QString num_tickets_text_;
+            QString speed_limit_text_;
+            QString ego_speed_text_;
             std::vector<std::string> ticket_queue;
             // Helper function to format Qt strings
             QString format_string(std::string text);
