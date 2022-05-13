@@ -38,7 +38,7 @@ namespace aipd_panel
         ego_speed = 0;
         num_objects = 0;
         num_tickets = 0;
-        speed_limit = 25;
+        speed_limit = 0;
 
         connect(ui_->speed_slider, SIGNAL(sliderReleased()), this, SLOT(send_speed_limit()));
     }
