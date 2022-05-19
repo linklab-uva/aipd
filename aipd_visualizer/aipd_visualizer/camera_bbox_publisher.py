@@ -76,7 +76,7 @@ def camera_callback(msg : Image):
         )
         if not box_in_image(nuscenes_box, cam_calibration, (msg.width, msg.height), vis_level=BoxVisibility.ANY):
             continue
-        nuscenes_box.render_cv2(cv_image, view=cam_calibration, normalize=True, colors=c)
+        nuscenes_box.render_cv2(cv_image, view=cam_calibration, normalize=True, colors=c, linewidth=4)
     image_pub.publish(bridge.cv2_to_imgmsg(cv_image, encoding='passthrough'))
 
         
@@ -88,15 +88,21 @@ def object_callback(msg : DetectedObjectArray):
             current_boxes[object.id] = object
         return
     time_difference = (datetime.fromtimestamp(msg.header.stamp.to_sec()) - last_annotation_time).total_seconds()
+    current_ids = set()
     for object in msg.objects:
         if object.new_detection:
             current_boxes[object.id] = object
+            current_ids.add(object.id)
             continue
         object_velocity_x = (object.pose.x - current_boxes[object.id].pose.x) / time_difference
         object_velocity_y = (object.pose.y - current_boxes[object.id].pose.y) / time_difference
         object_velocity_z = (object.pose.z - current_boxes[object.id].pose.z) / time_difference
         object_velocities[object.id] = (object_velocity_x, object_velocity_y, object_velocity_z)
         current_boxes[object.id] = object
+        current_ids.add(object.id)
+    for object_id in current_boxes:
+        if object_id not in current_ids:
+            current_boxes.pop(object_id)
     last_annotation_time = datetime.fromtimestamp(msg.header.stamp.to_sec())
 
 

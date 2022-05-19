@@ -79,7 +79,7 @@ namespace aipd_panel
     {
         std::string formatted_text;
         if (isdigit(text[0])) {
-            formatted_text = "<html><head/><body><p align=\"center\"><br/></p><p align=\"center\"><span style=\" font-size:26pt; font-weight:600;\">" + text + "</span></p></body></html>;";
+            formatted_text = "<html><head/><body><p align=\"center\"><br/></p><p align=\"center\"><span style=\" font-size:26pt; font-weight:600;\">" + text + "</span></p></body></html>";
         } else {
             formatted_text = "<html><head/><body><p><span style=\" font-size:14pt;\">"+ text + "</span></p></body></html>";
         }
