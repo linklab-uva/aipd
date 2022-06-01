@@ -57,7 +57,7 @@ def detected_object_callback(msg : DetectedObjectArray):
             ticket.violation_time = msg.header.stamp
             ticket_pub.publish(ticket)
             ticket_description = String()
-            ticket_description.data = "Ticket issued to vehicle " + str(ticket.id) + " for travelling " + str(int(ticket.velocity)) + " mph in a " + str(speed_limit) + " mph zone"
+            ticket_description.data = "Ticket issued to vehicle " + str(ticket.id) + " for travelling " + str(int(ticket.velocity)) + " mph"
             ticket_description_pub.publish(ticket_description)
             print(ticket_description.data)
     num_objects_msg = Int16()
